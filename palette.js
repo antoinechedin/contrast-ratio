@@ -1,0 +1,22 @@
+const DEFAULT_PALETTE = {
+    "black": "#383A42",
+    "brightBlack": "#4F525D",
+    "red": "#E45649",
+    "brightRed": "#DF6C75",
+    "green": "#50A14F",
+    "brightGreen": "#98C379",
+    "yellow": "#C18301",
+    "brightYellow": "#E4C07A",
+    "blue": "#0184BC",
+    "brightBlue": "#61AFEF",
+    "purple": "#A626A4",
+    "brightPurple": "#C577DD",
+    "cyan": "#0997B3",
+    "brightCyan": "#56B5C1",
+    "white": "#FAFAFA",
+    "brightWhite": "#FFFFFF",
+    "foreground": "#383A42",
+    "background": "#FAFAFA",
+    "cursorColor": "#4F525D",
+    "selectionBackground": "#4F525D"
+}
