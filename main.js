@@ -1,15 +1,15 @@
 const SLIDER_STEP = 500;
 
-function srgb_to_luminance(r, g, b) {
-    let rgb = [r / 255, g / 255, b / 255].map(x => {
-        return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
-    });
+function srgb_to_luminance(rgb) {
+    
+    rgb = rgb
+        .map(x => x / 255)
+        .map(x => (x <= 0.03928) ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4));
     return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 }
 
-function hls_to_luminance(h, l, s) {
-    let rgb = okhsl_to_srgb(h, l, s);
-    return srgb_to_luminance(rgb[0], rgb[1], rgb[2]);
+function hls_to_luminance(hls) {
+    return srgb_to_luminance(okhsl_to_srgb(hls));
 }
 
 function contrastRatio(l1, l2) {
@@ -51,25 +51,21 @@ class HTMLColorFieldSetElement extends HTMLFieldSetElement {
         this.appendChild(this.span);
 
         this.input.addEventListener('input', () => {
-            let rgb = hex_to_rgb(this.input.value);
-            let okhsl = srgb_to_okhsl(rgb[0], rgb[1], rgb[2]);
-            this.setColor(okhsl[0], okhsl[1], okhsl[2]);
+            this.setColor(srgb_to_okhsl(hex_to_rgb(this.input.value)));
         });
 
         this.slider.addEventListener('input', () => {
-            this.setColor(this.hsl[0], this.hsl[1], this.slider.value / SLIDER_STEP);
+            let newHsl = this.hsl;
+            newHsl[2] = this.slider.value / SLIDER_STEP;
+            this.setColor(newHsl);
         })
     }
 
-    setColor(h, s, l) {
-        this.hsl[0] = h;
-        this.hsl[1] = s;
-        this.hsl[2] = l;
-        this.luminance = hls_to_luminance(this.hsl[0], this.hsl[1], this.hsl[2]);
+    setColor(hsl) {
+        this.hsl = hsl;
+        this.luminance = hls_to_luminance(this.hsl);
 
-        let rgb = okhsl_to_srgb(this.hsl[0], this.hsl[1], this.hsl[2]);
-
-        this.input.value = rgb_to_hex(rgb[0], rgb[1], rgb[2]);
+        this.input.value = rgb_to_hex(okhsl_to_srgb(this.hsl));
         this.slider.value = Math.round(this.hsl[2] * SLIDER_STEP);
         this.updateText();
     }
@@ -106,10 +102,7 @@ paletteForm.addEventListener('submit', (event) => {
         }
         fieldset.id = key;
         body.append(fieldset);
-
-        let rgb = hex_to_rgb(palette[key]);
-        let hsl = srgb_to_okhsl(rgb[0], rgb[1], rgb[2]);
-        fieldset.setColor(hsl[0], hsl[1], hsl[2]);
+        fieldset.setColor(srgb_to_okhsl(hex_to_rgb(palette[key])));
     }
 
     colors.forEach((fieldset) => {
