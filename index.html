@@ -14,18 +14,22 @@
     <main class="container">
         <h1>Terminal palette - Contrast ratio</h1>
 
-        <div id="palette-edition" class="card shadow">
+        <div id="palette-edition" class="card shadow-sm">
+            <div class="card-header text-center">
+                Test your palette
+            </div>
+            <ul id="color-list" class="list-group list-group-flush"></ul>
             <div class="card-body">
-                <form id="import-color" class="d-flex justify-content-center align-items-center mb-3" style="gap:0.5rem;">
+                <form id="import-color" class="hstack gap-2 justify-content-center align-items-center mb-3">
                     <label for="hex-color-text" class="visually-hidden">Hex Value</label>
                     <input id="hex-color" name="hex-color" class="form-control" type="text" placeholder="Hex Value"
                         style="flex-basis: 10rem;" />
                     <input id="color-picker" name="color-picker" class="form-control form-control-color" type="color"  style="flex-basis: 5rem;"/>
                     <input class="btn btn-primary" type="submit" value="Add color" />
                 </form>
-                <form id="import-palette" class="d-flex justify-content-center align-items-center" style="gap:0.5rem;">
-                    <label for="json">JSON palette</label>
-                    <input id="json" name="json" class="form-control" type="text" style="flex-basis: 30rem;" />
+                <form id="import-palette" class="hstack gap-2 justify-content-center align-items-center">
+                    <label for="json"  class="visually-hidden">JSON palette</label>
+                    <input id="json" name="json" class="form-control" type="text" placeholder="JSON Palette" style="flex-basis: 30rem;" />
                     <input class="btn btn-primary" type="submit" value="Import palette" />
                 </form>
             </div>

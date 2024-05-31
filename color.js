@@ -542,7 +542,9 @@ function srgb_to_okhsl(rgb) {
     let C_max = Cs[2];
 
     let s;
-    if (C < C_mid) {
+    if (C == 0) {
+        s = 0;
+    } else if (C < C_mid) {
         let k_0 = 0;
         let k_1 = 0.8 * C_0;
         let k_2 = (1 - k_1 / C_mid);
@@ -681,7 +683,7 @@ function hex_to_rgb(hex) {
         return [a, a, a];
     }
 
-    return null;
+    return [0, 0, 0];
 }
 
 function rgb_to_hex(rgb) {

@@ -37,31 +37,51 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
     }
 
     connectedCallback() {
-        this.className = 'list-group-item d-flex';
+        this.className = 'list-group-item d-flex align-items-center p-0';
 
-        const grow = document.createElement('div');
-        grow.className = 'flex-grow-1 d-flex justify-content-between';
-        this.appendChild(grow);
+        this.preview = document.createElement('div');
+        this.preview.className = 'flex-grow-1 d-flex justify-content-between p-2';
+        this.appendChild(this.preview);
 
         this.originalColorRatio = document.createElement('span');
-        this.originalColorRatio.style.flexBasis = '4%';
-        // this.originalColorRatio.className = "ratio";
-        grow.appendChild(this.originalColorRatio);
+        this.originalColorRatio.style.flexBasis = '4.5rem';
+        this.originalColorRatio.style.fontSize = '1em';
+        this.originalColorRatio.className = 'badge text-bg-light';
+        this.preview.appendChild(this.originalColorRatio);
 
         this.originalSample = document.createElement('code');
         this.originalSample.className = 'flex-grow-1 text-center';
         this.originalSample.innerText = "Sample Text: a + b = c";
-        grow.appendChild(this.originalSample);
+        this.preview.appendChild(this.originalSample);
+
+        this.editionPreview = document.createElement('div');
+        this.editionPreview.className = 'flex-grow-1 d-flex justify-content-between p-2';
+        this.appendChild(this.editionPreview);
 
         this.sample = document.createElement('code');
         this.sample.className = 'flex-grow-1 text-center';
         this.sample.innerText = "Sample Text: a + b = c";
-        grow.appendChild(this.sample);
+        this.editionPreview.appendChild(this.sample);
 
         this.colorRatio = document.createElement('span');
-        // this.colorRatio.className = "ratio";
-        this.colorRatio.style.flexBasis = '4%';
-        grow.appendChild(this.colorRatio);
+        this.colorRatio.className = 'badge text-bg-light';
+        this.colorRatio.style.flexBasis = '4.5rem';
+        this.colorRatio.style.fontSize = '1em';
+        this.editionPreview.appendChild(this.colorRatio);
+
+        const rule = document.createElement('div');
+        rule.className = 'vr';
+        this.appendChild(rule);
+
+        this.resetButton = document.createElement('button');
+        this.resetButton.innerText = 'Clear';
+        this.resetButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            this.setColor(this.originalHsl);
+            this.changed = false;
+            // this.removeAttribute('modified');
+        });
+        this.appendChild(this.resetButton);
 
         this.slider = document.createElement('input');
         this.slider.type = 'range';
@@ -85,16 +105,6 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         this.input.addEventListener('input', () => {
             this.setColor(srgb_to_okhsl(hex_to_rgb(this.input.value)));
         });
-
-        this.resetButton = document.createElement('button');
-        this.resetButton.innerText = 'Clear';
-        this.resetButton.addEventListener('click', (event) => {
-            event.preventDefault();
-            this.setColor(this.originalHsl);
-            this.changed = false;
-            // this.removeAttribute('modified');
-        });
-        this.appendChild(this.resetButton);
     }
 
     setColor(hsl) {
@@ -104,10 +114,10 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         this.input.value = rgb_to_hex(okhsl_to_srgb(this.hsl));
         this.slider.value = this.hsl[2];
         if (this.changed) {
-            this.resetButton.removeAttribute('hidden');
+            this.resetButton.style.visibility = 'visible';
             // this.setAttribute('modified', '');
         } else {
-            this.resetButton.setAttribute('hidden', '');
+            this.resetButton.style.visibility = 'hidden';
             // this.removeAttribute('modified');
         }
 
@@ -135,7 +145,7 @@ window.customElements.define('color-fieldset', HTMLColorFieldSetElement, { exten
 
 let backgroundColor = null;
 let colors = [];
-let list = null;
+let list = document.getElementById('color-list');
 let nextColorId = 0;
 
 const root = document.getElementById('palette-edition');
@@ -144,18 +154,11 @@ const paletteForm = document.getElementById('import-palette');
 paletteForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    if (list === null) {
-        list = document.createElement('ul');
-        list.className = 'list-group list-group-flush';
-        root.prepend(list);
-    }
-
     let paletteJsonString = paletteForm.elements['json'].value;
     let palette = JSON.parse(paletteJsonString);
 
     for (let key in palette) {
         let fieldset = document.createElement('li', { is: 'color-fieldset' });
-        fieldset.className = 'list-group-item';
         colors.push(fieldset);
         if (key === "background") {
             backgroundColor = fieldset;
@@ -174,19 +177,18 @@ paletteForm.addEventListener('submit', (event) => {
     updateBackgrounds();
 })
 
-function updateBackgrounds()
-{
+function updateBackgrounds() {
     if (backgroundColor === null) return;
-    
+
     colors.forEach((fieldset) => {
-        fieldset.originalSample.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.originalHsl));
-        fieldset.sample.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.hsl));
+        fieldset.preview.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.originalHsl));
+        fieldset.editionPreview.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.hsl));
     })
 }
 
 
 const colorForm = document.getElementById('import-color');
-colorForm.addEventListener('submit',(event) => {
+colorForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const root = document.getElementById('palette-edition');
 
@@ -216,10 +218,10 @@ colorForm.addEventListener('submit',(event) => {
 
 const colorPicker = document.getElementById('color-picker');
 const hexColor = document.getElementById('hex-color');
-colorPicker.addEventListener('input', ()=> {
+colorPicker.addEventListener('input', () => {
     hexColor.value = colorPicker.value;
 })
-hexColor.addEventListener('change', ()=>{
+hexColor.addEventListener('change', () => {
     colorPicker.value = hexColor.value;
 })
 
