@@ -24,6 +24,7 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         this.hsl = [0, 0, 0];
         this.originalHsl = [0, 0, 0];
         this.changed = false;
+        this.isBackground = false;
     }
 
     static get observedAttributes() {
@@ -47,14 +48,16 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         // this.originalColorRatio.className = "ratio";
         grow.appendChild(this.originalColorRatio);
 
-        this.originalSample = document.createElement('span');
+        this.originalSample = document.createElement('code');
+        this.originalSample.className = 'flex-grow-1 text-center';
         this.originalSample.innerText = "Sample Text: a + b = c";
         grow.appendChild(this.originalSample);
 
-        this.sample = document.createElement('span');
+        this.sample = document.createElement('code');
+        this.sample.className = 'flex-grow-1 text-center';
         this.sample.innerText = "Sample Text: a + b = c";
         grow.appendChild(this.sample);
-        
+
         this.colorRatio = document.createElement('span');
         // this.colorRatio.className = "ratio";
         this.colorRatio.style.flexBasis = '4%';
@@ -70,14 +73,14 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         this.slider.style.flexBasis = '10%';
         this.slider.addEventListener('input', () => {
             let newHsl = this.hsl;
-            newHsl[2] = this.slider.value;
+            newHsl[2] = parseFloat(this.slider.value);
             this.setColor(newHsl);
         });
         this.appendChild(this.slider);
 
         this.input = document.createElement('input');
-        this.input.type = 'color'
-        this.input.className = 'form-control form-control-color'
+        this.input.className = 'form-control form-control-color';
+        this.input.type = 'color';
         this.appendChild(this.input);
         this.input.addEventListener('input', () => {
             this.setColor(srgb_to_okhsl(hex_to_rgb(this.input.value)));
@@ -110,6 +113,8 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
 
         this.originalSample.style.color = rgb_to_hex(okhsl_to_srgb(this.originalHsl));
         this.sample.style.color = rgb_to_hex(okhsl_to_srgb(this.hsl));
+
+        updateBackgrounds();
         this.updateRatio();
     }
 
@@ -130,15 +135,20 @@ window.customElements.define('color-fieldset', HTMLColorFieldSetElement, { exten
 
 let backgroundColor = null;
 let colors = [];
+let list = null;
+let nextColorId = 0;
+
+const root = document.getElementById('palette-edition');
 
 const paletteForm = document.getElementById('import-palette');
 paletteForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const root = document.getElementById('palette-edition');
 
-    const list = document.createElement('ul');
-    list.className = 'list-group list-group-flush';
-    root.appendChild(list);
+    if (list === null) {
+        list = document.createElement('ul');
+        list.className = 'list-group list-group-flush';
+        root.prepend(list);
+    }
 
     let paletteJsonString = paletteForm.elements['json'].value;
     let palette = JSON.parse(paletteJsonString);
@@ -161,6 +171,56 @@ paletteForm.addEventListener('submit', (event) => {
     colors.forEach((fieldset) => {
         fieldset.updateRatio();
     })
+    updateBackgrounds();
+})
+
+function updateBackgrounds()
+{
+    if (backgroundColor === null) return;
+    
+    colors.forEach((fieldset) => {
+        fieldset.originalSample.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.originalHsl));
+        fieldset.sample.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.hsl));
+    })
+}
+
+
+const colorForm = document.getElementById('import-color');
+colorForm.addEventListener('submit',(event) => {
+    event.preventDefault();
+    const root = document.getElementById('palette-edition');
+
+    if (list === null) {
+        list = document.createElement('ul');
+        list.className = 'list-group list-group-flush';
+        root.prepend(list);
+    }
+
+    let color = colorForm.elements['hex-color'].value;
+
+    let fieldset = document.createElement('li', { is: 'color-fieldset' });
+    fieldset.className = 'list-group-item';
+    colors.push(fieldset);
+    fieldset.id = `color-${nextColorId}`;
+    nextColorId++;
+    list.append(fieldset);
+
+    let hsl = srgb_to_okhsl(hex_to_rgb(color));
+    fieldset.originalHsl = hsl;
+    fieldset.setColor(hsl);
+
+    colors.forEach((fieldset) => {
+        fieldset.updateRatio();
+    })
+})
+
+const colorPicker = document.getElementById('color-picker');
+const hexColor = document.getElementById('hex-color');
+colorPicker.addEventListener('input', ()=> {
+    hexColor.value = colorPicker.value;
+})
+hexColor.addEventListener('change', ()=>{
+    colorPicker.value = hexColor.value;
 })
 
 document.getElementById('json').value = JSON.stringify(DEFAULT_PALETTE);

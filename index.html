@@ -13,13 +13,23 @@
 <body>
     <main class="container">
         <h1>Terminal palette - Contrast ratio</h1>
-        <form id="import-palette">
-            <label for="json">JSON palette</label>
-            <input type="text" id="json" name="json" />
-            <input type="submit" value="Import palette">
-        </form>
-        <form id="palette-edition" class="card shadow">
-        </form>
+
+        <div id="palette-edition" class="card shadow">
+            <div class="card-body">
+                <form id="import-color" class="d-flex justify-content-center align-items-center mb-3" style="gap:0.5rem;">
+                    <label for="hex-color-text" class="visually-hidden">Hex Value</label>
+                    <input id="hex-color" name="hex-color" class="form-control" type="text" placeholder="Hex Value"
+                        style="flex-basis: 10rem;" />
+                    <input id="color-picker" name="color-picker" class="form-control form-control-color" type="color"  style="flex-basis: 5rem;"/>
+                    <input class="btn btn-primary" type="submit" value="Add color" />
+                </form>
+                <form id="import-palette" class="d-flex justify-content-center align-items-center" style="gap:0.5rem;">
+                    <label for="json">JSON palette</label>
+                    <input id="json" name="json" class="form-control" type="text" style="flex-basis: 30rem;" />
+                    <input class="btn btn-primary" type="submit" value="Import palette" />
+                </form>
+            </div>
+        </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
