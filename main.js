@@ -37,10 +37,10 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
     }
 
     connectedCallback() {
-        this.className = 'list-group-item d-flex align-items-center p-0';
+        this.className = 'hstack list-group-item align-items-center p-0';
 
         this.preview = document.createElement('div');
-        this.preview.className = 'flex-grow-1 d-flex justify-content-between p-2';
+        this.preview.className = 'flex-grow-1 justify-content-between p-2';
         this.appendChild(this.preview);
 
         this.originalColorRatio = document.createElement('span');
@@ -73,6 +73,17 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         rule.className = 'vr';
         this.appendChild(rule);
 
+        this.editor = document.createElement('div');
+        this.editor.className = 'hstack';
+        this.editor.style.flexBasis = '4.5rem';
+        this.appendChild(this.editor);
+
+        this.nameLabel = document.createElement('p');
+        this.editor.style.flexBasis = '30%';
+        this.editor.appendChild(this.nameLabel);
+
+        // const collapse = document.createElement('button');
+
         this.resetButton = document.createElement('button');
         this.resetButton.innerText = 'Clear';
         this.resetButton.addEventListener('click', (event) => {
@@ -81,7 +92,7 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
             this.changed = false;
             // this.removeAttribute('modified');
         });
-        this.appendChild(this.resetButton);
+        this.editor.appendChild(this.resetButton);
 
         this.slider = document.createElement('input');
         this.slider.type = 'range';
@@ -90,21 +101,21 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         this.slider.max = 1;
         this.slider.step = 0.005;
         this.slider.value = 0;
-        this.slider.style.flexBasis = '10%';
+        this.slider.style.flexBasis = '4.5rem';
         this.slider.addEventListener('input', () => {
             let newHsl = this.hsl;
             newHsl[2] = parseFloat(this.slider.value);
             this.setColor(newHsl);
         });
-        this.appendChild(this.slider);
+        this.editor.appendChild(this.slider);
 
         this.input = document.createElement('input');
         this.input.className = 'form-control form-control-color';
         this.input.type = 'color';
-        this.appendChild(this.input);
         this.input.addEventListener('input', () => {
             this.setColor(srgb_to_okhsl(hex_to_rgb(this.input.value)));
         });
+        this.editor.appendChild(this.input);
     }
 
     setColor(hsl) {
@@ -140,6 +151,12 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         }
     }
 
+    setId(id)
+    {
+        this.id = id;
+        this.nameLabel.innerText = id;
+    }
+
 }
 window.customElements.define('color-fieldset', HTMLColorFieldSetElement, { extends: 'li' });
 
@@ -163,8 +180,9 @@ paletteForm.addEventListener('submit', (event) => {
         if (key === "background") {
             backgroundColor = fieldset;
         }
-        fieldset.id = key;
         list.append(fieldset);
+        fieldset.setId(key);
+
 
         let hsl = srgb_to_okhsl(hex_to_rgb(palette[key]));
         fieldset.originalHsl = hsl;
@@ -203,9 +221,9 @@ colorForm.addEventListener('submit', (event) => {
     let fieldset = document.createElement('li', { is: 'color-fieldset' });
     fieldset.className = 'list-group-item';
     colors.push(fieldset);
-    fieldset.id = `color-${nextColorId}`;
-    nextColorId++;
     list.append(fieldset);
+    fieldset.setId(`color-${nextColorId}`);
+    nextColorId++;
 
     let hsl = srgb_to_okhsl(hex_to_rgb(color));
     fieldset.originalHsl = hsl;
