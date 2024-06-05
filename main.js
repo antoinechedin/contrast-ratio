@@ -37,50 +37,64 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
     }
 
     connectedCallback() {
-        this.className = 'hstack list-group-item align-items-center p-0';
+        this.className = 'list-group-item p-0';
+
+        this.row = document.createElement('div');
+        this.row.className = 'row g-0';
+        this.appendChild(this.row);
 
         this.preview = document.createElement('div');
-        this.preview.className = 'flex-grow-1 justify-content-between p-2';
-        this.appendChild(this.preview);
+        this.preview.className = 'col-8';
+        this.row.appendChild(this.preview);
+
+        this.previewRow = document.createElement('div');
+        this.previewRow.className = 'row g-0 text-center';
+        this.preview.appendChild(this.previewRow);
+
+        this.before = document.createElement('div');
+        this.before.id = 'collapseBefore';
+        this.before.className = 'col p-2 collapse multi-collapse collapse-horizontal';
+        this.previewRow.appendChild(this.before);
 
         this.originalColorRatio = document.createElement('span');
-        this.originalColorRatio.style.flexBasis = '4.5rem';
         this.originalColorRatio.style.fontSize = '1em';
         this.originalColorRatio.className = 'badge text-bg-light';
-        this.preview.appendChild(this.originalColorRatio);
+        this.before.appendChild(this.originalColorRatio);
 
         this.originalSample = document.createElement('code');
-        this.originalSample.className = 'flex-grow-1 text-center';
+        this.originalSample.className = 'text-center';
         this.originalSample.innerText = "Sample Text: a + b = c";
-        this.preview.appendChild(this.originalSample);
+        this.before.appendChild(this.originalSample);
 
-        this.editionPreview = document.createElement('div');
-        this.editionPreview.className = 'flex-grow-1 d-flex justify-content-between p-2';
-        this.appendChild(this.editionPreview);
+        this.after = document.createElement('div');
+        this.after.className = 'col p-2 show multi-collapse';
+        this.previewRow.appendChild(this.after);
 
         this.sample = document.createElement('code');
-        this.sample.className = 'flex-grow-1 text-center';
+        this.sample.className = 'text-center';
         this.sample.innerText = "Sample Text: a + b = c";
-        this.editionPreview.appendChild(this.sample);
+        this.after.appendChild(this.sample);
 
         this.colorRatio = document.createElement('span');
         this.colorRatio.className = 'badge text-bg-light';
-        this.colorRatio.style.flexBasis = '4.5rem';
         this.colorRatio.style.fontSize = '1em';
-        this.editionPreview.appendChild(this.colorRatio);
+        this.after.appendChild(this.colorRatio);
 
-        const rule = document.createElement('div');
+        /* const rule = document.createElement('div');
         rule.className = 'vr';
-        this.appendChild(rule);
+        this.appendChild(rule); */
 
         this.editor = document.createElement('div');
-        this.editor.className = 'hstack';
-        this.editor.style.flexBasis = '4.5rem';
-        this.appendChild(this.editor);
+        this.editor.className = 'col';
+        this.row.appendChild(this.editor);
+        
+        this.editorRow = document.createElement('div');
+        this.editorRow.className = 'hstack gap-2';
+        this.editor.appendChild(this.editorRow);
 
         this.nameLabel = document.createElement('p');
-        this.editor.style.flexBasis = '30%';
-        this.editor.appendChild(this.nameLabel);
+        this.nameLabel.className = 'col-6';
+        this.editorRow.appendChild(this.nameLabel);
 
         // const collapse = document.createElement('button');
 
@@ -92,7 +106,7 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
             this.changed = false;
             // this.removeAttribute('modified');
         });
-        this.editor.appendChild(this.resetButton);
+        this.editorRow.appendChild(this.resetButton);
 
         this.slider = document.createElement('input');
         this.slider.type = 'range';
@@ -101,13 +115,12 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         this.slider.max = 1;
         this.slider.step = 0.005;
         this.slider.value = 0;
-        this.slider.style.flexBasis = '4.5rem';
         this.slider.addEventListener('input', () => {
             let newHsl = this.hsl;
             newHsl[2] = parseFloat(this.slider.value);
             this.setColor(newHsl);
         });
-        this.editor.appendChild(this.slider);
+        this.editorRow.appendChild(this.slider);
 
         this.input = document.createElement('input');
         this.input.className = 'form-control form-control-color';
@@ -115,7 +128,7 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         this.input.addEventListener('input', () => {
             this.setColor(srgb_to_okhsl(hex_to_rgb(this.input.value)));
         });
-        this.editor.appendChild(this.input);
+        this.editorRow.appendChild(this.input);
     }
 
     setColor(hsl) {
@@ -199,8 +212,8 @@ function updateBackgrounds() {
     if (backgroundColor === null) return;
 
     colors.forEach((fieldset) => {
-        fieldset.preview.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.originalHsl));
-        fieldset.editionPreview.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.hsl));
+        fieldset.before.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.originalHsl));
+        fieldset.after.style.backgroundColor = rgb_to_hex(okhsl_to_srgb(backgroundColor.hsl));
     })
 }
 
