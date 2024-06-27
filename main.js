@@ -44,7 +44,7 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         this.appendChild(this.row);
 
         this.preview = document.createElement('div');
-        this.preview.className = 'col-8';
+        this.preview.className = 'col-9';
         this.row.appendChild(this.preview);
 
         this.previewRow = document.createElement('div');
@@ -87,13 +87,13 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         this.editor = document.createElement('div');
         this.editor.className = 'col';
         this.row.appendChild(this.editor);
-        
+
         this.editorRow = document.createElement('div');
         this.editorRow.className = 'hstack gap-2';
         this.editor.appendChild(this.editorRow);
 
         this.nameLabel = document.createElement('p');
-        this.nameLabel.className = 'col-6';
+        this.nameLabel.className = 'col-4';
         this.editorRow.appendChild(this.nameLabel);
 
         // const collapse = document.createElement('button');
@@ -164,8 +164,7 @@ class HTMLColorFieldSetElement extends HTMLLIElement {
         }
     }
 
-    setId(id)
-    {
+    setId(id) {
         this.id = id;
         this.nameLabel.innerText = id;
     }
@@ -245,6 +244,20 @@ colorForm.addEventListener('submit', (event) => {
     colors.forEach((fieldset) => {
         fieldset.updateRatio();
     })
+})
+
+const exportForm = document.getElementById('export-palette');
+exportForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    let result = {};
+    for (let i = 0; i < list.children.length; i++) {
+        result[list.children[i].id] = rgb_to_hex(okhsl_to_srgb(list.children[i].hsl));
+    }
+    navigator.clipboard.writeText(JSON.stringify(result)).then(function () {
+        console.log('Async: Copying to clipboard was successful!');
+    }, function (err) {
+        console.error('Async: Could not copy text: ', err);
+    });
 })
 
 const colorPicker = document.getElementById('color-picker');
